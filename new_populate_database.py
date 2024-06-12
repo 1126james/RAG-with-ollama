@@ -20,9 +20,9 @@ def main():
         print("✨ Clearing Database")
         clear_database()
 
-    # documents = load_documents()
-    # chunks = split_documents(documents)
-    # add_to_chroma(chunks)
+    documents = load_documents()
+    chunks = split_documents(documents)
+    add_to_chroma(chunks)
 
 def load_documents():
     document_loader = PyPDFDirectoryLoader(DATA_PATH)
