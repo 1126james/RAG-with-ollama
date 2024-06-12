@@ -1,1 +1,2 @@
-# rag-tutorial-v2
+# nice joke
+# nothing to read here fk off
