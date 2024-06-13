@@ -4,4 +4,3 @@ chromadb # Vector storage
 pytest
 boto3
 spacy
-pytest
