@@ -67,7 +67,7 @@ def query_rag(query_text: str):
 
     # Debugging
     # Print the sources separately
-    show_sources(sources)
+    #show_sources(sources)
 
     return response_text
 
@@ -78,7 +78,7 @@ def show_score(results):
 
 def show_sources(sources):
     # Adjust column widths
-    id_width = 50
+    id_width = 60
     score_width = 10
 
     # Create a header for the table
