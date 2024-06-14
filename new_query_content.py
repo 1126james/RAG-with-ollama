@@ -35,7 +35,8 @@ def main():
         chunk_id = str(input("\n\nExample: ticket_to_ride.pdf:3:5\n👉 Chunk_id: "))
         content = get_chunk_content_by_id(chunk_id, chroma_db)
         if content:
-            print(f"Content for ID '{chunk_id}':\n\n {content}")
+            content_length = len(content)
+            print(f"Content for ID '{chunk_id}':\n\n {content}\n\n{content_length}")
         else:
             print("Content not found.")
 
