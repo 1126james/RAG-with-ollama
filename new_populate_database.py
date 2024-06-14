@@ -2,11 +2,14 @@ import os
 import argparse
 import shutil
 import spacy
+import jieba
+import pdfplumber
 from langchain_community.document_loaders import PyPDFDirectoryLoader
 from langchain.schema.document import Document
 from get_embedding_function import get_embedding_function
 from langchain_community.vectorstores import Chroma
 
+# Load spaCy model for English
 nlp = spacy.load("en_core_web_sm")
 
 CHROMA_PATH = "chroma"
@@ -25,9 +28,18 @@ def main():
     add_to_chroma(chunks)
 
 def load_documents():
-    document_loader = PyPDFDirectoryLoader(DATA_PATH)
-    return document_loader.load()
-    
+    documents = []
+    for filename in os.listdir(DATA_PATH):
+        if filename.endswith(".pdf"):
+            pdf_path = os.path.join(DATA_PATH, filename)
+            with pdfplumber.open(pdf_path) as pdf:
+                for i, page in enumerate(pdf.pages):
+                    text = page.extract_text()
+                    if text:
+                        metadata = {"source": filename, "page": i + 1}
+                        documents.append(Document(page_content=text, metadata=metadata))
+    return documents
+
 def split_documents(documents: list[Document], max_chunk_size: int = 800) -> list[Document]:
     chunks = []
     for document in documents:
@@ -38,13 +50,16 @@ def split_documents(documents: list[Document], max_chunk_size: int = 800) -> lis
     return chunks
 
 def split_text_by_semantic_units(text: str, metadata: dict, max_chunk_size: int = 800) -> list[Document]:
+    # Tokenize text using spaCy for English and jieba for Chinese
     doc = nlp(text)
+    english_sentences = [sent.text.strip() for sent in doc.sents]
+    chinese_sentences = list(jieba.cut(text, cut_all=False))
+
     chunks = []
     current_chunk = ""
     counter = 0  # Reset counter for each new document
 
-    for sent in doc.sents:
-        sentence = sent.text.strip()
+    for sentence in english_sentences + chinese_sentences:
         if len(current_chunk) + len(sentence) + 1 > max_chunk_size:
             chunk_id = f"{metadata['source']}:{metadata['page']}:{counter}"
             chunks.append(Document(page_content=current_chunk, metadata={"id": chunk_id}))
